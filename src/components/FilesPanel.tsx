@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, ChevronRight, ChevronDown, Folder, Eye } from 'lucide-react';
+import { FileText, ChevronRight, ChevronDown, Folder } from 'lucide-react';
 import type { FileState } from '../types';
 
 interface FilesPanelProps {

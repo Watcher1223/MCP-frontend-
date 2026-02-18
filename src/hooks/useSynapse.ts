@@ -9,7 +9,18 @@ interface UseSynapseReturn {
   reconnect: () => void;
 }
 
-export function useSynapse(hubUrl: string = 'ws://localhost:3100'): UseSynapseReturn {
+function getDefaultHubUrl(): string {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+  // In production, WebSocket goes through Apache proxy at the same host
+  // In development, connect directly to localhost:3100
+  if (host.includes('localhost') || host.includes('127.0.0.1')) {
+    return 'ws://localhost:3100';
+  }
+  return `${protocol}//${host}`;
+}
+
+export function useSynapse(hubUrl: string = getDefaultHubUrl()): UseSynapseReturn {
   const [connected, setConnected] = useState(false);
   const [blueprint, setBlueprint] = useState<Blueprint | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
@@ -99,9 +110,13 @@ export function useSynapse(hubUrl: string = 'ws://localhost:3100'): UseSynapseRe
 
   // Poll for blueprint updates
   useEffect(() => {
+    const apiBase = window.location.host.includes('localhost')
+      ? 'http://localhost:3100'
+      : `${window.location.protocol}//${window.location.host}`;
+
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`http://localhost:3100/api/blueprint`);
+        const response = await fetch(`${apiBase}/api/blueprint`);
         if (response.ok) {
           const data = await response.json();
           setBlueprint(data.blueprint || data);
