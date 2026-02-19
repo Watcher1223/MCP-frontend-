@@ -9,6 +9,9 @@ import Header from './components/Header';
 import ConfigPanel from './components/ConfigPanel';
 import CollaborationGraph from './components/CollaborationGraph';
 import QuickConnect from './components/QuickConnect';
+import GoalPanel from './components/GoalPanel';
+import WorkQueuePanel from './components/WorkQueuePanel';
+import CascadePanel from './components/CascadePanel';
 
 function App() {
   const [showConfig, setShowConfig] = useState(false);
@@ -59,8 +62,9 @@ function App() {
         {viewMode === 'graph' ? (
           // Graph View - Full screen collaboration visualization
           <div className="h-[calc(100vh-4rem)] flex">
-            {/* Left Sidebar - Agents */}
-            <div className="w-72 border-r border-gray-800 overflow-y-auto bg-gray-900/50">
+            {/* Left Sidebar - Agents & Goals */}
+            <div className="w-72 border-r border-gray-800 overflow-y-auto bg-gray-900/50 space-y-4 p-2">
+              <GoalPanel compact />
               <AgentsPanel
                 agents={blueprint?.agents || []}
                 onUpdateAgent={updateAgent}
@@ -79,14 +83,11 @@ function App() {
               />
             </div>
 
-            {/* Right Sidebar - Activity */}
-            <div className="w-80 border-l border-gray-800 flex flex-col bg-gray-900/50">
-              <div className="flex-1 overflow-y-auto border-b border-gray-800">
-                <EventsPanel events={events} agents={blueprint?.agents || []} compact />
-              </div>
-              <div className="h-64 overflow-y-auto">
-                <IntentsPanel intents={blueprint?.intents || []} agents={blueprint?.agents || []} compact />
-              </div>
+            {/* Right Sidebar - Work Queue & Cascade */}
+            <div className="w-80 border-l border-gray-800 flex flex-col bg-gray-900/50 overflow-y-auto p-2 space-y-4">
+              <WorkQueuePanel compact />
+              <CascadePanel compact />
+              <EventsPanel events={events} agents={blueprint?.agents || []} compact />
             </div>
           </div>
         ) : (

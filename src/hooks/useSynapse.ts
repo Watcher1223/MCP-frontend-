@@ -14,9 +14,9 @@ interface UseSynapseReturn {
 function getHubUrl(): string {
   const host = window.location.host;
   // In production, WebSocket goes through Apache proxy at the same host
-  // In development, connect directly to localhost:3100
+  // In development, connect directly to localhost:3200 (MCP server)
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return 'ws://localhost:3100';
+    return 'ws://localhost:3200';
   }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${protocol}//${host}`;
@@ -25,7 +25,7 @@ function getHubUrl(): string {
 function getApiBase(): string {
   const host = window.location.host;
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return 'http://localhost:3100';
+    return 'http://localhost:3200';
   }
   return `${window.location.protocol}//${host}`;
 }
