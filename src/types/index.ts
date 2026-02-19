@@ -2,24 +2,31 @@ export interface Agent {
   id: string;
   name: string;
   type: 'realtime' | 'stateless' | 'observer';
-  role: 'planner' | 'coder' | 'tester' | 'refactor' | 'observer';
+  role: 'planner' | 'coder' | 'tester' | 'executor' | 'refactor' | 'observer';
+  environment?: string;
   capabilities: string[];
-  connectedAt: number;
-  lastSeen: number;
-  cursor: number;
+  subscriptions?: string[];
+  connectedAt?: number;
+  lastSeen: number | Date;
+  cursor?: number;
+  isOnline?: boolean;
+  metadata?: Record<string, any>;
 }
 
 export interface Lock {
   id: string;
   agentId: string;
-  target: {
+  targetPath?: string;
+  targetType?: string;
+  targetIdentifier?: string;
+  target?: {
     type: string;
     path: string;
     identifier?: string;
   };
-  acquiredAt: number;
-  ttl: number;
-  expiresAt: number;
+  acquiredAt?: number;
+  ttl?: number;
+  expiresAt?: number | Date;
   intent?: string;
 }
 
@@ -27,39 +34,54 @@ export interface Intent {
   id: string;
   agentId: string;
   action: string;
-  targets: string[];
-  description: string;
-  priority: number;
+  targets?: string[];
+  concepts?: string[];
+  description?: string;
+  priority?: number;
   status: 'pending' | 'active' | 'completed' | 'cancelled' | 'blocked';
-  dependencies: string[];
-  createdAt: number;
-  updatedAt: number;
+  dependencies?: string[];
+  result?: any;
+  createdAt?: number | Date;
+  updatedAt?: number;
+  completedAt?: number | Date;
 }
 
 export interface FileState {
   path: string;
-  content: string;
+  content?: string;
   version: number;
-  lastModifiedBy: string;
-  lastModifiedAt: number;
-  checksum: string;
+  lastModifiedBy?: string;
+  lastModifiedAt?: number;
+  checksum?: string;
 }
 
 export interface Event {
   id: string;
   cursor: number;
   type: string;
-  agentId: string;
+  agentId?: string;
   timestamp: number;
   data: Record<string, any>;
+  concepts?: string[];
 }
 
 export interface Blueprint {
-  version: number;
-  timestamp: number;
+  version?: number;
+  timestamp?: number;
   agents: Agent[];
   locks: Lock[];
   intents: Intent[];
   files: Record<string, FileState>;
   cursor: number;
+}
+
+export interface Reaction {
+  id: string;
+  agentId: string;
+  triggerConcepts: string[];
+  triggerEventTypes: string[];
+  actionType: string;
+  actionConfig: Record<string, any>;
+  priority: number;
+  enabled: boolean;
 }

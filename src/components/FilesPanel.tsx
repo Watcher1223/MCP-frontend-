@@ -116,7 +116,7 @@ export default function FilesPanel({ files }: FilesPanelProps) {
             </button>
           </div>
           <div className="text-xs text-gray-500 mb-2">
-            Version: {selectedFile.version} | Modified by: {selectedFile.lastModifiedBy.slice(0, 8)}
+            Version: {selectedFile.version} | Modified by: {selectedFile.lastModifiedBy?.slice(0, 8) || 'Unknown'}
           </div>
           <pre className="text-xs text-gray-300 font-mono bg-gray-900 rounded p-3 overflow-auto max-h-64">
             {selectedFile.content}

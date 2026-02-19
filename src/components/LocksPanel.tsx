@@ -36,17 +36,21 @@ export default function LocksPanel({ locks, agents }: LocksPanelProps) {
           </div>
         ) : (
           locks.map((lock) => {
-            const isExpiringSoon = lock.expiresAt - Date.now() < 10000;
+            const expiresAt = typeof lock.expiresAt === 'number' ? lock.expiresAt : (lock.expiresAt ? new Date(lock.expiresAt).getTime() : Date.now() + 60000);
+            const isExpiringSoon = expiresAt - Date.now() < 10000;
+            const targetPath = lock.target?.path || lock.targetPath || 'Unknown';
+            const targetType = lock.target?.type || lock.targetType || 'file';
+            const targetId = lock.target?.identifier || lock.targetIdentifier;
             return (
               <div key={lock.id} className="px-4 py-3">
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="font-mono text-sm text-white truncate">
-                      {lock.target.path}
+                      {targetPath}
                     </div>
                     <div className="text-xs text-gray-400 mt-1">
-                      {lock.target.type}
-                      {lock.target.identifier && ` : ${lock.target.identifier}`}
+                      {targetType}
+                      {targetId && ` : ${targetId}`}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       Held by: {getAgentName(lock.agentId, agents)}
@@ -54,7 +58,7 @@ export default function LocksPanel({ locks, agents }: LocksPanelProps) {
                   </div>
                   <div className={`flex items-center gap-1 text-xs ${isExpiringSoon ? 'text-yellow-400' : 'text-gray-400'}`}>
                     <Clock className="w-3 h-3" />
-                    {formatTimeRemaining(lock.expiresAt)}
+                    {formatTimeRemaining(expiresAt)}
                   </div>
                 </div>
               </div>
