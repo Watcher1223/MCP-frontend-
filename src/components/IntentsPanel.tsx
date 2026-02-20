@@ -41,23 +41,23 @@ export default function IntentsPanel({ intents, agents, compact = false }: Inten
   const activeIntents = intents.filter(i => i.status === 'pending' || i.status === 'active');
 
   return (
-    <div className={`${compact ? '' : 'bg-gray-800/50 rounded-xl border border-gray-700/50'} overflow-hidden h-full`}>
-      <div className={`px-4 py-3 ${compact ? 'border-b border-gray-800' : 'border-b border-gray-700/50'} flex items-center justify-between sticky top-0 ${compact ? 'bg-gray-900/95' : 'bg-gray-800/95'} backdrop-blur-sm z-10`}>
+    <div className={`${compact ? '' : 'panel-card'} overflow-hidden h-full`}>
+      <div className={`panel-header sticky top-0 ${compact ? 'bg-surface-mid/95' : 'bg-surface-card/95'} backdrop-blur-sm z-10`}>
         <div className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-purple-400" />
-          <h2 className="font-semibold text-white">Intents</h2>
+          <Target className="w-5 h-5 text-accent-gold" />
+          <h2 className="font-semibold text-text-primary">Intents</h2>
         </div>
         {activeIntents.length > 0 && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
+          <span className="text-xs px-2 py-0.5 rounded-lg bg-accent-gold/15 text-accent-gold border border-accent-gold/25">
             {activeIntents.length} active
           </span>
         )}
       </div>
 
       <div className="overflow-y-auto h-[calc(100%-52px)]">
-        <div className={`divide-y ${compact ? 'divide-gray-800/30' : 'divide-gray-700/30'}`}>
+        <div className="divide-y divide-surface-border/50">
           {intents.length === 0 ? (
-            <div className="px-4 py-6 text-center text-gray-500">
+            <div className="px-4 py-6 text-center text-text-muted">
               <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No active intents</p>
             </div>
@@ -68,27 +68,27 @@ export default function IntentsPanel({ intents, agents, compact = false }: Inten
                 const colorClass = statusColors[intent.status];
 
                 return (
-                  <div key={intent.id} className={`px-4 ${compact ? 'py-2.5' : 'py-3'} hover:bg-gray-800/30 transition-colors`}>
+                  <div key={intent.id} className={`px-4 ${compact ? 'py-2.5' : 'py-3'} hover:bg-surface-elevated/50 transition-colors`}>
                     <div className="flex items-start gap-3">
                       <div className={`p-1.5 rounded-md border ${colorClass}`}>
                         <Icon className="w-3.5 h-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-white text-sm">
+                        <div className="font-medium text-text-primary text-sm">
                           {intent.action.replace(/_/g, ' ')}
                         </div>
                         {!compact && intent.description && (
-                          <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                          <div className="text-xs text-text-secondary mt-1 line-clamp-2">
                             {intent.description}
                           </div>
                         )}
-                        <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 mt-1.5 text-xs text-text-muted">
                           <span>{getAgentName(intent.agentId, agents)}</span>
-                          <span className="text-gray-700">·</span>
+                          <span className="text-text-muted">·</span>
                           <span>{formatTime(intent.createdAt)}</span>
                           {intent.priority && intent.priority > 5 && (
                             <>
-                              <span className="text-gray-700">·</span>
+                              <span className="text-text-muted">·</span>
                               <span className="text-amber-400">High Priority</span>
                             </>
                           )}
@@ -96,19 +96,19 @@ export default function IntentsPanel({ intents, agents, compact = false }: Inten
                         {!compact && intent.targets && intent.targets.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {intent.targets.slice(0, 3).map((target, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-400 font-mono">
+                              <span key={i} className="px-2 py-0.5 bg-surface-elevated rounded-lg text-xs text-text-secondary font-mono">
                                 {target.split('/').pop()}
                               </span>
                             ))}
                             {intent.targets.length > 3 && (
-                              <span className="text-xs text-gray-500">+{intent.targets.length - 3} more</span>
+                              <span className="text-xs text-text-muted">+{intent.targets.length - 3} more</span>
                             )}
                           </div>
                         )}
                         {!compact && intent.concepts && intent.concepts.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1.5">
                             {intent.concepts.slice(0, 4).map((concept, i) => (
-                              <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-xs text-purple-400">
+                              <span key={i} className="px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/20 rounded-lg text-xs text-accent-gold">
                                 {concept}
                               </span>
                             ))}

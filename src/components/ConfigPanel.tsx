@@ -39,25 +39,25 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-xl border border-gray-700 w-full max-w-2xl m-4">
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="font-semibold text-white">Configuration</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="panel-card w-full max-w-2xl overflow-hidden">
+        <div className="panel-header bg-surface-elevated/50">
+          <h2 className="font-semibold text-text-primary">Configuration</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Hub URL
             </label>
             <input
               type="text"
               value={hubUrl}
               onChange={(e) => setHubUrl(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-synapse-500"
+              className="w-full px-4 py-2.5 bg-surface-deep border border-surface-border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-gold/50 focus:ring-1 focus:ring-accent-gold/20 transition-colors"
             />
           </div>
 
@@ -65,7 +65,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
             <button
               onClick={runDemo}
               disabled={running}
-              className="flex items-center gap-2 px-4 py-2 bg-synapse-600 hover:bg-synapse-500 disabled:opacity-50 rounded-lg text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-accent-gold hover:bg-accent-gold/90 disabled:opacity-50 rounded-lg text-surface-deep font-medium transition-colors"
             >
               {running ? (
                 <>
@@ -82,7 +82,7 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
 
             <button
               onClick={resetHub}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-surface-elevated hover:bg-surface-border/50 border border-surface-border rounded-lg text-text-primary font-medium transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Reset Hub
@@ -90,22 +90,22 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           </div>
 
           {output.length > 0 && (
-            <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm">
+            <div className="bg-surface-deep rounded-lg p-4 font-mono text-sm border border-surface-border">
               {output.map((line, i) => (
-                <div key={i} className="text-gray-300">{line}</div>
+                <div key={i} className="text-text-secondary">{line}</div>
               ))}
             </div>
           )}
 
-          <div className="bg-gray-900 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-300 mb-2">How to Run</h3>
-            <div className="space-y-2 text-sm text-gray-400">
+          <div className="bg-surface-deep/50 rounded-lg p-4 border border-surface-border">
+            <h3 className="text-sm font-medium text-text-secondary mb-3">How to Run</h3>
+            <div className="space-y-2 text-sm text-text-muted">
               <p>1. Start the hub:</p>
-              <code className="block bg-gray-800 px-2 py-1 rounded">npm run dev:hub</code>
+              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run dev:hub</code>
               <p>2. Run the demo scenarios:</p>
-              <code className="block bg-gray-800 px-2 py-1 rounded">npm run demo</code>
+              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run demo</code>
               <p>3. Or run individual tests:</p>
-              <code className="block bg-gray-800 px-2 py-1 rounded">npm run test</code>
+              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run test</code>
             </div>
           </div>
         </div>

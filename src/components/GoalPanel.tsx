@@ -65,27 +65,27 @@ export default function GoalPanel({ compact }: GoalPanelProps) {
 
   if (loading) {
     return (
-      <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+      <div className="panel-card p-4">
+        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
           Goals
         </h3>
-        <div className="text-gray-500 text-sm">Loading...</div>
+        <div className="text-text-muted text-sm">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+    <div className="panel-card p-4">
+      <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
         Goals ({goals.length})
       </h3>
 
       {goals.length === 0 ? (
-        <div className="text-gray-500 text-sm">No active goals</div>
+        <div className="text-text-muted text-sm">No active goals</div>
       ) : (
         <div className="space-y-4">
           {goals.map((goal) => (
-            <div key={goal.id} className={`border rounded-lg p-3 ${getStatusColor(goal.status)}`}>
+            <div key={goal.id} className={`border border-surface-border rounded-xl p-3 ${getStatusColor(goal.status)}`}>
               {/* Progress Ring */}
               <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 flex-shrink-0">
@@ -97,7 +97,7 @@ export default function GoalPanel({ compact }: GoalPanelProps) {
                       stroke="currentColor"
                       strokeWidth="4"
                       fill="none"
-                      className="text-gray-700"
+                      className="text-surface-border"
                     />
                     <circle
                       cx="32"
@@ -117,7 +117,7 @@ export default function GoalPanel({ compact }: GoalPanelProps) {
 
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{goal.description}</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-text-muted mt-1">
                     Status: <span className={getStatusColor(goal.status).split(' ')[0]}>{goal.status}</span>
                   </div>
                 </div>
@@ -130,12 +130,12 @@ export default function GoalPanel({ compact }: GoalPanelProps) {
                     <div key={i} className="flex items-center gap-2 text-xs">
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center ${
                         (goal.progress || 0) > (i + 1) * (100 / goal.success_criteria.length)
-                          ? getStatusBg(goal.status) + ' text-white'
-                          : 'bg-gray-700'
+                          ? getStatusBg(goal.status) + ' text-surface-deep'
+                          : 'bg-surface-elevated'
                       }`}>
                         {(goal.progress || 0) > (i + 1) * (100 / goal.success_criteria.length) ? '✓' : ''}
                       </span>
-                      <span className="text-gray-400">{criterion}</span>
+                      <span className="text-text-secondary">{criterion}</span>
                     </div>
                   ))}
                 </div>

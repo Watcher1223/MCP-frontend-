@@ -34,7 +34,7 @@ function App() {
   }, [reconnect]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
+    <div className="min-h-screen bg-surface-deep text-text-primary">
       {/* Header */}
       <Header
         connected={connected}
@@ -63,7 +63,7 @@ function App() {
           // Graph View - Full screen collaboration visualization
           <div className="h-[calc(100vh-4rem)] flex">
             {/* Left Sidebar - Agents & Goals */}
-            <div className="w-72 border-r border-gray-800 overflow-y-auto bg-gray-900/50 space-y-4 p-2">
+            <div className="w-72 border-r border-surface-border overflow-y-auto bg-surface-mid/60 space-y-4 p-4">
               <GoalPanel compact />
               <AgentsPanel
                 agents={blueprint?.agents || []}
@@ -73,7 +73,7 @@ function App() {
             </div>
 
             {/* Main Graph Area */}
-            <div className="flex-1 relative bg-gray-950">
+            <div className="flex-1 relative bg-surface-deep">
               <CollaborationGraph
                 agents={blueprint?.agents || []}
                 intents={blueprint?.intents || []}
@@ -84,7 +84,7 @@ function App() {
             </div>
 
             {/* Right Sidebar - Work Queue & Cascade */}
-            <div className="w-80 border-l border-gray-800 flex flex-col bg-gray-900/50 overflow-y-auto p-2 space-y-4">
+            <div className="w-80 border-l border-surface-border flex flex-col bg-surface-mid/60 overflow-y-auto p-4 space-y-4">
               <WorkQueuePanel compact />
               <CascadePanel compact />
               <EventsPanel events={events} agents={blueprint?.agents || []} compact />
@@ -92,7 +92,7 @@ function App() {
           </div>
         ) : (
           // Grid View - Traditional dashboard
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-6 py-8 max-w-[1600px]">
             <div className="grid grid-cols-12 gap-6">
               {/* Left Column - Agents & Locks */}
               <div className="col-span-12 lg:col-span-3 space-y-6">
@@ -102,7 +102,7 @@ function App() {
 
               {/* Middle Column - Graph & Events */}
               <div className="col-span-12 lg:col-span-5 space-y-6">
-                <div className="h-80 bg-gray-900 rounded-lg border border-gray-800">
+                <div className="h-80 panel-card overflow-hidden">
                   <CollaborationGraph
                     agents={blueprint?.agents || []}
                     intents={blueprint?.intents || []}

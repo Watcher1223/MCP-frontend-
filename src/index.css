@@ -2,22 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gray-900 text-gray-100 font-sans antialiased;
+@layer base {
+  body {
+    @apply bg-surface-deep text-text-primary font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
+  @apply bg-surface-mid;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded;
+  @apply bg-surface-border rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  @apply bg-text-muted;
+}
+
+/* Card base style */
+@layer components {
+  .panel-card {
+    @apply rounded-xl border border-surface-border bg-surface-card/80 backdrop-blur-sm shadow-card;
+  }
+  .panel-header {
+    @apply px-4 py-3 border-b border-surface-border flex items-center justify-between;
+  }
 }

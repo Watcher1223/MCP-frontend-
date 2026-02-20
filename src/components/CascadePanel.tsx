@@ -67,33 +67,33 @@ export default function CascadePanel({ compact }: CascadePanelProps) {
   return (
     <div className="space-y-4">
       {/* File Sessions */}
-      <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+      <div className="panel-card p-4">
+        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
           Collaborative Editing ({fileSessions.length})
         </h3>
 
         {fileSessions.length === 0 ? (
-          <div className="text-gray-500 text-sm">No active file sessions</div>
+          <div className="text-text-muted text-sm">No active file sessions</div>
         ) : (
           <div className="space-y-2">
             {fileSessions.map((session, i) => (
-              <div key={i} className="border border-blue-500/30 bg-blue-500/10 rounded-lg p-3">
+              <div key={i} className="border border-accent-teal/30 bg-accent-teal/10 rounded-xl p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-blue-400">📄</span>
-                  <span className="text-sm font-mono text-gray-300">{session.path}</span>
+                  <span className="text-accent-teal">📄</span>
+                  <span className="text-sm font-mono text-text-secondary">{session.path}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {session.editors.map((editor, j) => (
                     <span
                       key={j}
-                      className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300"
+                      className="text-xs px-2 py-0.5 rounded-lg bg-surface-elevated text-text-secondary"
                     >
                       {editor}
                     </span>
                   ))}
                 </div>
                 {session.pendingChanges > 0 && (
-                  <div className="text-xs text-yellow-400 mt-2">
+                  <div className="text-xs text-amber-400 mt-2">
                     {session.pendingChanges} pending changes (auto-merging...)
                   </div>
                 )}
@@ -104,13 +104,13 @@ export default function CascadePanel({ compact }: CascadePanelProps) {
       </div>
 
       {/* Cascade Events */}
-      <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+      <div className="panel-card p-4">
+        <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
           Cascade Events
         </h3>
 
         {cascadeEvents.length === 0 ? (
-          <div className="text-gray-500 text-sm">No recent cascades</div>
+          <div className="text-text-muted text-sm">No recent cascades</div>
         ) : (
           <div className="space-y-2">
             {cascadeEvents.slice(0, compact ? 5 : 10).map((event, i) => (
@@ -120,11 +120,11 @@ export default function CascadePanel({ compact }: CascadePanelProps) {
               >
                 <div className="flex items-center gap-2">
                   <span>{getEventIcon(event.type)}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-text-muted">
                     {event.source} → {event.target}
                   </span>
                 </div>
-                <div className="text-sm text-gray-300 mt-1">
+                <div className="text-sm text-text-secondary mt-1">
                   {event.details}
                 </div>
               </div>

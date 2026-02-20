@@ -65,25 +65,25 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
   const offlineAgents = agents.filter(a => a.isOnline === false);
 
   return (
-    <div className={`${compact ? '' : 'bg-gray-800/50 rounded-xl border border-gray-700/50'} overflow-hidden`}>
-      <div className={`px-4 py-3 ${compact ? 'border-b border-gray-800' : 'border-b border-gray-700/50'} flex items-center justify-between`}>
+    <div className={`${compact ? '' : 'panel-card'} overflow-hidden`}>
+      <div className={`panel-header ${compact ? 'py-2.5' : ''}`}>
         <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-400" />
-          <h2 className="font-semibold text-white">Agents</h2>
+          <Users className="w-5 h-5 text-accent-teal" />
+          <h2 className="font-semibold text-text-primary">Agents</h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+          <span className="text-xs px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
             {onlineAgents.length} online
           </span>
         </div>
       </div>
 
-      <div className={`divide-y ${compact ? 'divide-gray-800/50' : 'divide-gray-700/50'} max-h-[400px] overflow-y-auto`}>
+      <div className={`divide-y divide-surface-border max-h-[400px] overflow-y-auto`}>
         {agents.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-500">
+          <div className="px-4 py-8 text-center text-text-muted">
             <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No agents connected</p>
-            <p className="text-xs mt-1">Run: npx synapse connect</p>
+            <p className="text-xs mt-1 font-mono text-accent-teal">npx synapse connect</p>
           </div>
         ) : (
           <>
@@ -95,7 +95,7 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
               return (
                 <div
                   key={agent.id}
-                  className={`px-4 py-3 hover:bg-gray-800/50 transition-colors ${compact ? 'py-2.5' : ''}`}
+                  className={`px-4 py-3 hover:bg-surface-elevated/50 transition-colors ${compact ? 'py-2.5' : ''}`}
                 >
                   {isEditing ? (
                     <div className="space-y-2">
@@ -103,14 +103,14 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white text-sm focus:border-blue-500 focus:outline-none"
+                        className="w-full bg-surface-deep border border-surface-border rounded-lg px-2 py-1.5 text-text-primary text-sm focus:border-accent-gold/50 focus:outline-none"
                         placeholder="Agent name"
                         autoFocus
                       />
                       <select
                         value={editRole}
                         onChange={(e) => setEditRole(e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white text-sm focus:border-blue-500 focus:outline-none"
+                        className="w-full bg-surface-deep border border-surface-border rounded-lg px-2 py-1.5 text-text-primary text-sm focus:border-accent-gold/50 focus:outline-none"
                       >
                         {ROLES.map(role => (
                           <option key={role} value={role}>{role}</option>
@@ -119,14 +119,14 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                       <div className="flex gap-2">
                         <button
                           onClick={() => saveEditing(agent.id)}
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-sm hover:bg-blue-500/30 transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-accent-teal/20 text-accent-teal rounded-lg text-sm hover:bg-accent-teal/30 transition-colors"
                         >
                           <Check className="w-3 h-3" />
                           Save
                         </button>
                         <button
                           onClick={cancelEditing}
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-surface-elevated text-text-secondary rounded-lg text-sm hover:bg-surface-border transition-colors"
                         >
                           <X className="w-3 h-3" />
                           Cancel
@@ -134,13 +134,13 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 group">
                       <div className={`p-2 rounded-lg border ${roleColors[agent.role] || roleColors.observer} ${compact ? 'p-1.5' : ''}`}>
                         <Icon className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-white truncate">{agent.name}</span>
+                          <span className="font-medium text-text-primary truncate">{agent.name}</span>
                           <span className="relative flex h-2 w-2" title="Online">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -152,8 +152,8 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                           </span>
                           {agent.environment && (
                             <>
-                              <span className="text-gray-600">·</span>
-                              <span className="text-xs text-gray-500">{agent.environment}</span>
+                              <span className="text-text-muted">·</span>
+                              <span className="text-xs text-text-muted">{agent.environment}</span>
                             </>
                           )}
                         </div>
@@ -161,10 +161,10 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                       {onUpdateAgent && (
                         <button
                           onClick={() => startEditing(agent)}
-                          className="p-1.5 hover:bg-gray-700 rounded transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-1.5 hover:bg-surface-elevated rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                           title="Edit agent"
                         >
-                          <Edit2 className="w-3.5 h-3.5 text-gray-400" />
+                          <Edit2 className="w-3.5 h-3.5 text-text-muted" />
                         </button>
                       )}
                     </div>
@@ -176,8 +176,8 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
             {/* Offline agents */}
             {offlineAgents.length > 0 && (
               <>
-                <div className="px-4 py-2 bg-gray-900/50">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">
+                <div className="px-4 py-2 bg-surface-deep/50">
+                  <span className="text-xs text-text-muted uppercase tracking-wider">
                     Offline ({offlineAgents.length})
                   </span>
                 </div>
@@ -186,17 +186,17 @@ export default function AgentsPanel({ agents, onUpdateAgent, compact = false }: 
                   return (
                     <div
                       key={agent.id}
-                      className="px-4 py-2.5 opacity-50"
+                      className="px-4 py-2.5 opacity-60"
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`p-1.5 rounded-lg border border-gray-700 bg-gray-800`}>
-                          <Icon className="w-3.5 h-3.5 text-gray-500" />
+                        <div className={`p-1.5 rounded-lg border border-surface-border bg-surface-elevated`}>
+                          <Icon className="w-3.5 h-3.5 text-text-muted" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-400 truncate">{agent.name}</span>
+                            <span className="text-sm text-text-secondary truncate">{agent.name}</span>
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-xs text-text-muted">
                             Last seen: {formatTime(agent.lastSeen)}
                           </div>
                         </div>

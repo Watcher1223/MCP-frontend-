@@ -53,12 +53,12 @@ function FileTreeNode({ node, depth = 0, onSelect }: { node: FileNode; depth?: n
     return (
       <button
         onClick={() => node.file && onSelect(node.file)}
-        className="flex items-center gap-2 w-full px-2 py-1 hover:bg-gray-700 rounded text-left"
+        className="flex items-center gap-2 w-full px-2 py-1.5 hover:bg-surface-elevated rounded-lg text-left transition-colors"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
-        <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
-        <span className="text-sm text-gray-300 truncate">{node.name}</span>
-        <span className="text-xs text-gray-500 ml-auto">v{node.file?.version}</span>
+        <FileText className="w-4 h-4 text-accent-teal flex-shrink-0" />
+        <span className="text-sm text-text-secondary truncate">{node.name}</span>
+        <span className="text-xs text-text-muted ml-auto">v{node.file?.version}</span>
       </button>
     );
   }
@@ -67,16 +67,16 @@ function FileTreeNode({ node, depth = 0, onSelect }: { node: FileNode; depth?: n
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 w-full px-2 py-1 hover:bg-gray-700 rounded"
+        className="flex items-center gap-2 w-full px-2 py-1.5 hover:bg-surface-elevated rounded-lg transition-colors"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
         {expanded ? (
-          <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
+          <ChevronDown className="w-4 h-4 text-text-muted flex-shrink-0" />
         ) : (
-          <ChevronRight className="w-4 h-4 text-gray-500 flex-shrink-0" />
+          <ChevronRight className="w-4 h-4 text-text-muted flex-shrink-0" />
         )}
-        <Folder className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-        <span className="text-sm text-gray-300">{node.name}</span>
+        <Folder className="w-4 h-4 text-accent-gold flex-shrink-0" />
+        <span className="text-sm text-text-secondary">{node.name}</span>
       </button>
       {expanded && (
         <div>
@@ -95,37 +95,37 @@ export default function FilesPanel({ files }: FilesPanelProps) {
   const fileCount = Object.keys(files).length;
 
   return (
-    <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+    <div className="panel-card overflow-hidden">
+      <div className="panel-header">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-synapse-400" />
-          <h2 className="font-semibold text-white">Files</h2>
+          <FileText className="w-5 h-5 text-accent-teal" />
+          <h2 className="font-semibold text-text-primary">Files</h2>
         </div>
-        <span className="text-sm text-gray-400">{fileCount} files</span>
+        <span className="text-sm text-text-muted">{fileCount} files</span>
       </div>
 
       {selectedFile ? (
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="font-mono text-sm text-white truncate">{selectedFile.path}</div>
+            <div className="font-mono text-sm text-text-primary truncate">{selectedFile.path}</div>
             <button
               onClick={() => setSelectedFile(null)}
-              className="text-gray-400 hover:text-white text-sm"
+              className="text-text-muted hover:text-text-primary text-sm transition-colors"
             >
               Close
             </button>
           </div>
-          <div className="text-xs text-gray-500 mb-2">
+          <div className="text-xs text-text-muted mb-2">
             Version: {selectedFile.version} | Modified by: {selectedFile.lastModifiedBy?.slice(0, 8) || 'Unknown'}
           </div>
-          <pre className="text-xs text-gray-300 font-mono bg-gray-900 rounded p-3 overflow-auto max-h-64">
+          <pre className="text-xs text-text-secondary font-mono bg-surface-deep rounded-lg p-3 overflow-auto max-h-64 border border-surface-border">
             {selectedFile.content}
           </pre>
         </div>
       ) : (
         <div className="p-2 max-h-64 overflow-y-auto">
           {tree.length === 0 ? (
-            <div className="px-4 py-6 text-center text-gray-500 text-sm">
+            <div className="px-4 py-6 text-center text-text-muted text-sm">
               No files in working memory
             </div>
           ) : (

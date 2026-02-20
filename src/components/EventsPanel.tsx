@@ -79,30 +79,30 @@ export default function EventsPanel({ events, agents, compact = false }: EventsP
   const reversedEvents = [...events].reverse().slice(0, compact ? 50 : 100);
 
   return (
-    <div className={`${compact ? '' : 'bg-gray-800/50 rounded-xl border border-gray-700/50'} overflow-hidden h-full`}>
-      <div className={`px-4 py-3 ${compact ? 'border-b border-gray-800' : 'border-b border-gray-700/50'} flex items-center justify-between sticky top-0 ${compact ? 'bg-gray-900/95' : 'bg-gray-800/95'} backdrop-blur-sm z-10`}>
+    <div className={`${compact ? '' : 'panel-card'} overflow-hidden h-full`}>
+      <div className={`panel-header sticky top-0 ${compact ? 'bg-surface-mid/95' : 'bg-surface-card/95'} backdrop-blur-sm z-10`}>
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-400" />
-          <h2 className="font-semibold text-white">Events</h2>
+          <Activity className="w-5 h-5 text-accent-teal" />
+          <h2 className="font-semibold text-text-primary">Events</h2>
         </div>
-        <span className="text-xs text-gray-500">{events.length} total</span>
+        <span className="text-xs text-text-muted">{events.length} total</span>
       </div>
 
       <div className="overflow-y-auto h-[calc(100%-52px)]">
         {reversedEvents.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-500">
+          <div className="px-4 py-8 text-center text-text-muted">
             <Activity className="w-6 h-6 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Waiting for events...</p>
           </div>
         ) : (
-          <div className={`divide-y ${compact ? 'divide-gray-800/30' : 'divide-gray-700/30'}`}>
+          <div className="divide-y divide-surface-border/50">
             {reversedEvents.map((event) => {
               const Icon = eventIcons[event.type] || Activity;
               const colorClass = eventColors[event.type] || 'text-gray-400 bg-gray-500/10';
               const [textColor, bgColor] = colorClass.split(' ');
 
               return (
-                <div key={event.id} className={`px-4 ${compact ? 'py-2' : 'py-2.5'} hover:bg-gray-800/30 transition-colors`}>
+                <div key={event.id} className={`px-4 ${compact ? 'py-2' : 'py-2.5'} hover:bg-surface-elevated/50 transition-colors`}>
                   <div className="flex items-start gap-2.5">
                     <div className={`p-1.5 rounded-md ${bgColor}`}>
                       <Icon className={`w-3.5 h-3.5 ${textColor}`} />
@@ -114,11 +114,11 @@ export default function EventsPanel({ events, agents, compact = false }: EventsP
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-text-muted">
                           {getAgentName(event.agentId, agents)}
                         </span>
-                        <span className="text-gray-700">·</span>
-                        <span className="text-xs text-gray-600 font-mono">
+                        <span className="text-text-muted">·</span>
+                        <span className="text-xs text-text-muted font-mono">
                           {formatTime(event.timestamp)}
                         </span>
                       </div>

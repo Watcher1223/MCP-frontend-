@@ -336,12 +336,12 @@ export default function CollaborationGraph({
       simulate();
       frame++;
 
-      // Clear
-      ctx.fillStyle = '#030712';
+      // Clear - use surface-deep
+      ctx.fillStyle = '#0d0d14';
       ctx.fillRect(0, 0, dimensions.width, dimensions.height);
 
       // Draw grid
-      ctx.strokeStyle = '#1f2937';
+      ctx.strokeStyle = '#1a1a2e';
       ctx.lineWidth = 1;
       const gridSize = 50;
       for (let x = 0; x < dimensions.width; x += gridSize) {
@@ -385,7 +385,7 @@ export default function CollaborationGraph({
         if (edge.label) {
           const midX = (source.x + target.x) / 2;
           const midY = (source.y + target.y) / 2;
-          ctx.font = '14px Inter';
+          ctx.font = '14px DM Sans';
           ctx.fillStyle = '#fff';
           ctx.fillText(edge.label, midX - 7, midY + 5);
         }
@@ -416,7 +416,7 @@ export default function CollaborationGraph({
 
         // Icon based on type
         ctx.fillStyle = '#fff';
-        ctx.font = `${node.size * 0.8}px Inter`;
+        ctx.font = `${node.size * 0.8}px DM Sans`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -430,15 +430,15 @@ export default function CollaborationGraph({
         }
 
         // Label
-        ctx.font = `${compact ? 10 : 12}px Inter`;
-        ctx.fillStyle = '#9ca3af';
+        ctx.font = `${compact ? 10 : 12}px DM Sans`;
+        ctx.fillStyle = '#a8a5a0';
         ctx.fillText(node.label, node.x, node.y + node.size + 15);
       });
 
       // Draw status indicator
       if (!compact) {
-        ctx.font = '14px Inter';
-        ctx.fillStyle = '#6b7280';
+        ctx.font = '14px DM Sans';
+        ctx.fillStyle = '#6a6762';
         ctx.textAlign = 'left';
         ctx.fillText(`${nodes.length} nodes · ${edgesRef.current.length} edges`, 20, dimensions.height - 20);
       }
@@ -491,19 +491,19 @@ export default function CollaborationGraph({
       {/* Hover tooltip */}
       {hoveredNode && (
         <div
-          className="absolute bg-gray-800 border border-gray-700 rounded-lg p-3 shadow-xl z-10 pointer-events-none"
+          className="absolute bg-surface-card border border-surface-border rounded-xl p-3 shadow-card z-10 pointer-events-none"
           style={{
             left: Math.min(hoveredNode.x + 20, dimensions.width - 200),
             top: Math.min(hoveredNode.y + 20, dimensions.height - 100),
           }}
         >
-          <div className="font-medium text-white">{hoveredNode.label}</div>
-          <div className="text-sm text-gray-400">
+          <div className="font-medium text-text-primary">{hoveredNode.label}</div>
+          <div className="text-sm text-text-secondary">
             {hoveredNode.type === 'agent' && (
               <>
                 <div>Role: {hoveredNode.data.role}</div>
                 <div>Environment: {hoveredNode.data.environment}</div>
-                <div className={hoveredNode.data.isOnline ? 'text-green-400' : 'text-gray-500'}>
+                <div className={hoveredNode.data.isOnline ? 'text-emerald-400' : 'text-text-muted'}>
                   {hoveredNode.data.isOnline ? '● Online' : '○ Offline'}
                 </div>
               </>
@@ -526,23 +526,23 @@ export default function CollaborationGraph({
 
       {/* Legend */}
       {!compact && (
-        <div className="absolute top-4 right-4 bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-xs">
-          <div className="font-medium mb-2">Legend</div>
-          <div className="space-y-1">
+        <div className="absolute top-4 right-4 bg-surface-card/90 backdrop-blur-sm border border-surface-border rounded-xl p-3 text-xs">
+          <div className="font-medium mb-2 text-text-primary">Legend</div>
+          <div className="space-y-1.5 text-text-secondary">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+              <span className="w-3 h-3 rounded-full bg-accent-teal"></span>
               <span>Coder</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-purple-500"></span>
+              <span className="w-3 h-3 rounded-full bg-accent-gold"></span>
               <span>Planner</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-green-500"></span>
+              <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
               <span>Tester</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-slate-500"></span>
+              <span className="w-3 h-3 rounded-full bg-surface-border"></span>
               <span>File</span>
             </div>
             <div className="flex items-center gap-2">
