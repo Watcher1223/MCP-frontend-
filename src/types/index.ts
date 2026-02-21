@@ -65,6 +65,17 @@ export interface Event {
   concepts?: string[];
 }
 
+export interface WorkItem {
+  id: string;
+  description: string;
+  forRole: 'backend' | 'frontend' | 'tester' | 'any';
+  createdBy: string;
+  createdAt: number;
+  assignedTo?: string;
+  status: 'pending' | 'assigned' | 'completed';
+  context?: Record<string, any>;
+}
+
 export interface Blueprint {
   version?: number;
   timestamp?: number;
@@ -72,6 +83,8 @@ export interface Blueprint {
   locks: Lock[];
   intents: Intent[];
   files: Record<string, FileState>;
+  workQueue?: WorkItem[];
+  target?: string | null;
   cursor: number;
 }
 
