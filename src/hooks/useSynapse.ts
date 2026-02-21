@@ -26,6 +26,8 @@ interface UseSynapseReturn {
 }
 
 function getApiBase(): string {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) return envUrl;
   const host = window.location.host;
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
     return 'http://localhost:3201';
