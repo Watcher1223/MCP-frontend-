@@ -42,11 +42,13 @@ function WorkspaceSelector({
   currentWorkspace,
   onSelect,
   onCreate,
+  onClear,
 }: {
   workspaces: any[];
   currentWorkspace: any;
   onSelect: (id: string) => void;
   onCreate: (name: string) => Promise<any>;
+  onClear: () => void;
 }) {
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -106,34 +108,63 @@ function WorkspaceSelector({
             </div>
           </div>
 
-          {/* Existing workspaces */}
-          {workspaces.length > 0 && (
+          {/* Demo workspace (opt-in) */}
+          {workspaces.some((ws) => ws.id === 'default') && (
+            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
+              <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-400" />
+                Demo (opt-in)
+              </h2>
+              <p className="text-sm text-white/40 mb-4">
+                Try the pre-loaded demo. Toggle off to create or join your own workspace.
+              </p>
+              <button
+                onClick={() => onSelect('default')}
+                className="w-full p-4 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-left transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-amber-400">Demo Workspace</div>
+                    <div className="text-sm text-white/40 font-mono">default</div>
+                  </div>
+                  <div className="text-sm text-white/50">
+                    {workspaces.find((w) => w.id === 'default')?.agents ?? 0} agents
+                  </div>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* Existing workspaces (user-created, exclude demo) */}
+          {workspaces.filter((ws) => ws.id !== 'default').length > 0 && (
             <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <FolderOpen className="w-5 h-5 text-white/50" />
                 Join Existing Workspace
               </h2>
               <div className="space-y-2">
-                {workspaces.map((ws) => (
-                  <button
-                    key={ws.id}
-                    onClick={() => onSelect(ws.id)}
-                    className="w-full p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10 rounded-xl text-left transition-colors group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-white">{ws.name}</div>
-                        <div className="text-sm text-white/40 font-mono">{ws.id}</div>
+                {workspaces
+                  .filter((ws) => ws.id !== 'default')
+                  .map((ws) => (
+                    <button
+                      key={ws.id}
+                      onClick={() => onSelect(ws.id)}
+                      className="w-full p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10 rounded-xl text-left transition-colors group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-white">{ws.name}</div>
+                          <div className="text-sm text-white/40 font-mono">{ws.id}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-white/50">{ws.agents} agents</div>
+                          {ws.target && (
+                            <div className="text-xs text-amber-400">{ws.target}</div>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm text-white/50">{ws.agents} agents</div>
-                        {ws.target && (
-                          <div className="text-xs text-amber-400">{ws.target}</div>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
               </div>
             </div>
           )}
@@ -143,11 +174,21 @@ function WorkspaceSelector({
   }
 
   // Workspace selected - show compact selector in header area
+  const isDemo = currentWorkspace?.id === 'default';
   return (
     <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02] border-b border-white/5">
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" />
         <span className="font-medium text-white truncate">{currentWorkspace.name}</span>
+        {isDemo && (
+          <button
+            onClick={onClear}
+            className="text-xs px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg transition-colors shrink-0"
+            title="Switch to your own workspace"
+          >
+            Switch workspace
+          </button>
+        )}
         <button
           onClick={copyWorkspaceId}
           className="flex items-center gap-1.5 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-mono text-white/60 hover:text-white transition-colors shrink-0"
@@ -195,6 +236,7 @@ function App() {
     currentWorkspace,
     createWorkspace,
     selectWorkspace,
+    clearWorkspace,
   } = useSynapse();
 
   const agents = blueprint?.agents || [];
@@ -218,6 +260,7 @@ function App() {
         currentWorkspace={currentWorkspace}
         onSelect={selectWorkspace}
         onCreate={createWorkspace}
+        onClear={clearWorkspace}
       />
     );
   }
@@ -241,6 +284,7 @@ function App() {
           currentWorkspace={currentWorkspace}
           onSelect={selectWorkspace}
           onCreate={createWorkspace}
+          onClear={clearWorkspace}
         />
 
         {/* Target Banner */}

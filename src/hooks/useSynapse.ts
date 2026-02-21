@@ -22,6 +22,7 @@ interface UseSynapseReturn {
   currentWorkspace: Workspace | null;
   createWorkspace: (name: string) => Promise<Workspace | null>;
   selectWorkspace: (id: string) => void;
+  clearWorkspace: () => void;
   refreshWorkspaces: () => Promise<void>;
 }
 
@@ -103,8 +104,11 @@ export function useSynapse(): UseSynapseReturn {
         setWorkspaces(data.workspaces || []);
 
         // If no current workspace, try to restore from localStorage
+        // Never auto-restore demo workspace (id "default") - user must explicitly opt in
         const storedId = localStorage.getItem('stigmergy_workspace_id');
+        const useDemo = localStorage.getItem('stigmergy_use_demo') === 'true';
         if (!currentWorkspace && storedId) {
+          if (storedId === 'default' && !useDemo) return; // Demo is opt-in only
           const found = data.workspaces?.find((w: Workspace) => w.id === storedId);
           if (found) {
             setCurrentWorkspace(found);
@@ -144,6 +148,7 @@ export function useSynapse(): UseSynapseReturn {
         setWorkspaces(prev => [...prev, newWorkspace]);
         setCurrentWorkspace(newWorkspace);
         localStorage.setItem('stigmergy_workspace_id', newWorkspace.id);
+        localStorage.setItem('stigmergy_use_demo', 'false'); // Created workspace, not demo
         // Refetch state for the new workspace immediately so we navigate with data
         versionRef.current = 0;
         return newWorkspace;
@@ -160,9 +165,17 @@ export function useSynapse(): UseSynapseReturn {
     if (found) {
       setCurrentWorkspace(found);
       localStorage.setItem('stigmergy_workspace_id', id);
+      localStorage.setItem('stigmergy_use_demo', id === 'default' ? 'true' : 'false');
       versionRef.current = 0; // Reset version to fetch full state
     }
   }, [workspaces]);
+
+  // Switch away from current workspace (e.g. leave demo to create/select own)
+  const clearWorkspace = useCallback(() => {
+    setCurrentWorkspace(null);
+    localStorage.removeItem('stigmergy_workspace_id');
+    localStorage.setItem('stigmergy_use_demo', 'false');
+  }, []);
 
   // Poll for changes
   const poll = useCallback(async () => {
@@ -324,6 +337,7 @@ export function useSynapse(): UseSynapseReturn {
     currentWorkspace,
     createWorkspace,
     selectWorkspace,
+    clearWorkspace,
     refreshWorkspaces,
   };
 }
