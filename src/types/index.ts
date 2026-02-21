@@ -31,6 +31,8 @@ export interface Lock {
   ttl?: number;
   expiresAt?: number | Date;
   intent?: string;
+  agentName?: string;
+  client?: string;
 }
 
 export interface Intent {

@@ -28,7 +28,8 @@ const roleColors: Record<string, string> = {
 
 const ROLES = ['planner', 'coder', 'tester', 'executor', 'observer'];
 
-function formatTime(timestamp: number | Date): string {
+function formatTime(timestamp: number | Date | undefined): string {
+  if (!timestamp) return 'Unknown';
   const ts = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime();
   const diff = Date.now() - ts;
   if (diff < 60000) return 'Just now';

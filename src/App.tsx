@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useSynapse } from './hooks/useSynapse';
 import Header from './components/Header';
 import ConfigPanel from './components/ConfigPanel';
-import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users, Plus, Copy, Check, FolderOpen } from 'lucide-react';
+import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users, Plus, Copy, Check, FolderOpen, Settings2 } from 'lucide-react';
 
 // Agent colors based on client type
 const AGENT_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
@@ -42,13 +42,15 @@ function WorkspaceSelector({
   currentWorkspace,
   onSelect,
   onCreate,
-  onClear,
+  onConfigureApi,
+  apiConfigured,
 }: {
   workspaces: any[];
   currentWorkspace: any;
   onSelect: (id: string) => void;
   onCreate: (name: string) => Promise<any>;
-  onClear: () => void;
+  onConfigureApi?: () => void;
+  apiConfigured?: boolean;
 }) {
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -57,6 +59,8 @@ function WorkspaceSelector({
   const handleCreate = async () => {
     if (!newName.trim()) return;
     setCreating(true);
+    // Clear any stored workspace before creating new one
+    localStorage.removeItem('stigmergy_workspace_id');
     await onCreate(newName.trim());
     setNewName('');
     setCreating(false);
@@ -83,12 +87,26 @@ function WorkspaceSelector({
             <p className="text-white/50">Autonomous Agent Coordination</p>
           </div>
 
+          {/* API Configuration hint */}
+          {!apiConfigured && onConfigureApi && (
+            <button
+              onClick={onConfigureApi}
+              className="w-full mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 text-sm flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors"
+            >
+              <Settings2 className="w-4 h-4" />
+              Configure Backend API URL
+            </button>
+          )}
+
           {/* Create new workspace */}
           <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5 text-amber-400" />
               Create Workspace
             </h2>
+            <p className="text-white/40 text-sm mb-4">
+              Create a fresh workspace for your project. Agents can join using the workspace ID.
+            </p>
             <div className="flex gap-3">
               <input
                 type="text"
@@ -108,63 +126,48 @@ function WorkspaceSelector({
             </div>
           </div>
 
-          {/* Demo workspace (opt-in) */}
-          {workspaces.some((ws) => ws.id === 'default') && (
-            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
-              <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                <Zap className="w-5 h-5 text-amber-400" />
-                Demo (opt-in)
-              </h2>
-              <p className="text-sm text-white/40 mb-4">
-                Try the pre-loaded demo. Toggle off to create or join your own workspace.
-              </p>
-              <button
-                onClick={() => onSelect('default')}
-                className="w-full p-4 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-left transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-amber-400">Demo Workspace</div>
-                    <div className="text-sm text-white/40 font-mono">default</div>
-                  </div>
-                  <div className="text-sm text-white/50">
-                    {workspaces.find((w) => w.id === 'default')?.agents ?? 0} agents
-                  </div>
-                </div>
-              </button>
-            </div>
-          )}
+          {/* How agents join */}
+          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+              <Bot className="w-5 h-5 text-white/50" />
+              Invite Agents
+            </h2>
+            <p className="text-white/40 text-sm mb-3">
+              After creating a workspace, agents join using MCP tools:
+            </p>
+            <code className="block bg-black/30 rounded-lg p-3 text-sm text-amber-400 font-mono">
+              join_workspace(name="Claude", client="claude", role="backend")
+            </code>
+          </div>
 
-          {/* Existing workspaces (user-created, exclude demo) */}
-          {workspaces.filter((ws) => ws.id !== 'default').length > 0 && (
+          {/* Existing workspaces - only show if there are active agents */}
+          {workspaces.length > 0 && workspaces.some(ws => ws.agents > 0) && (
             <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <FolderOpen className="w-5 h-5 text-white/50" />
-                Join Existing Workspace
+                Active Workspace
               </h2>
               <div className="space-y-2">
-                {workspaces
-                  .filter((ws) => ws.id !== 'default')
-                  .map((ws) => (
-                    <button
-                      key={ws.id}
-                      onClick={() => onSelect(ws.id)}
-                      className="w-full p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10 rounded-xl text-left transition-colors group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-white">{ws.name}</div>
-                          <div className="text-sm text-white/40 font-mono">{ws.id}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-white/50">{ws.agents} agents</div>
-                          {ws.target && (
-                            <div className="text-xs text-amber-400">{ws.target}</div>
-                          )}
-                        </div>
+                {workspaces.filter(ws => ws.agents > 0).map((ws) => (
+                  <button
+                    key={ws.id}
+                    onClick={() => onSelect(ws.id)}
+                    className="w-full p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10 rounded-xl text-left transition-colors group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white">{ws.name}</div>
+                        <div className="text-sm text-white/40 font-mono">{ws.id}</div>
                       </div>
-                    </button>
-                  ))}
+                      <div className="text-right">
+                        <div className="text-sm text-emerald-400">{ws.agents} agents online</div>
+                        {ws.target && (
+                          <div className="text-xs text-amber-400">{ws.target}</div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -174,21 +177,11 @@ function WorkspaceSelector({
   }
 
   // Workspace selected - show compact selector in header area
-  const isDemo = currentWorkspace?.id === 'default';
   return (
     <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02] border-b border-white/5">
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" />
         <span className="font-medium text-white truncate">{currentWorkspace.name}</span>
-        {isDemo && (
-          <button
-            onClick={onClear}
-            className="text-xs px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg transition-colors shrink-0"
-            title="Switch to your own workspace"
-          >
-            Switch workspace
-          </button>
-        )}
         <button
           onClick={copyWorkspaceId}
           className="flex items-center gap-1.5 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-mono text-white/60 hover:text-white transition-colors shrink-0"
@@ -224,20 +217,74 @@ function WorkspaceSelector({
   );
 }
 
+// API Configuration Modal
+function ApiConfigModal({ onClose, onSave }: { onClose: () => void; onSave: (url: string) => void }) {
+  const [url, setUrl] = useState(localStorage.getItem('stigmergy_api_url') || '');
+
+  const handleSave = () => {
+    if (url.trim()) {
+      localStorage.setItem('stigmergy_api_url', url.trim());
+      onSave(url.trim());
+    }
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#161b22] border border-white/10 rounded-2xl p-6 max-w-md w-full">
+        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Settings2 className="w-5 h-5 text-amber-400" />
+          Configure Backend API
+        </h2>
+        <p className="text-white/50 text-sm mb-4">
+          Enter the URL of your Stigmergy MCP server (e.g., from mcp-use deployment).
+        </p>
+        <input
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://your-server.run.mcp-use.com"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-amber-500/50 mb-4"
+        />
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 rounded-xl text-black font-medium transition-colors"
+          >
+            Save & Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [showConfig, setShowConfig] = useState(false);
+  const [showApiConfig, setShowApiConfig] = useState(false);
+  const [apiConfigured, setApiConfigured] = useState(!!localStorage.getItem('stigmergy_api_url'));
   const {
     connected,
     blueprint,
-    events,
     error,
     reconnect,
     workspaces,
     currentWorkspace,
     createWorkspace,
     selectWorkspace,
-    clearWorkspace,
   } = useSynapse();
+
+  const handleApiSave = (_url: string) => {
+    setApiConfigured(true);
+    // Force reconnect with new URL
+    window.location.reload();
+  };
 
   const agents = blueprint?.agents || [];
   const locks = blueprint?.locks || [];
@@ -255,13 +302,19 @@ function App() {
   // If no workspace selected, show workspace selector
   if (!currentWorkspace) {
     return (
-      <WorkspaceSelector
-        workspaces={workspaces}
-        currentWorkspace={currentWorkspace}
-        onSelect={selectWorkspace}
-        onCreate={createWorkspace}
-        onClear={clearWorkspace}
-      />
+      <>
+        {showApiConfig && (
+          <ApiConfigModal onClose={() => setShowApiConfig(false)} onSave={handleApiSave} />
+        )}
+        <WorkspaceSelector
+          workspaces={workspaces}
+          currentWorkspace={currentWorkspace}
+          onSelect={selectWorkspace}
+          onCreate={createWorkspace}
+          onConfigureApi={() => setShowApiConfig(true)}
+          apiConfigured={apiConfigured || connected}
+        />
+      </>
     );
   }
 
@@ -277,6 +330,10 @@ function App() {
 
       {showConfig && <ConfigPanel onClose={() => setShowConfig(false)} />}
 
+      {showApiConfig && (
+        <ApiConfigModal onClose={() => setShowApiConfig(false)} onSave={handleApiSave} />
+      )}
+
       <main className="pt-16 h-screen flex flex-col">
         {/* Workspace Bar */}
         <WorkspaceSelector
@@ -284,7 +341,6 @@ function App() {
           currentWorkspace={currentWorkspace}
           onSelect={selectWorkspace}
           onCreate={createWorkspace}
-          onClear={clearWorkspace}
         />
 
         {/* Target Banner */}
