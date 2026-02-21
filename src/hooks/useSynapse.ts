@@ -36,9 +36,9 @@ function getApiBase(): string {
 
   const host = window.location.host;
 
-  // Local development
+  // Local development - API is on port 3201
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return 'http://localhost:3200';
+    return 'http://localhost:3201';
   }
 
   // Default: assume same origin (works when frontend is served by backend)
