@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSynapse } from './hooks/useSynapse';
 import Header from './components/Header';
 import ConfigPanel from './components/ConfigPanel';
-import QuickConnect from './components/QuickConnect';
-import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users } from 'lucide-react';
+import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users, Plus, Copy, Check, FolderOpen } from 'lucide-react';
 
 // Agent colors based on client type
 const AGENT_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
@@ -37,23 +36,166 @@ function formatTime(timestamp: number | Date | undefined): string {
   return `${Math.floor(diff / 3600000)}h ago`;
 }
 
+// Workspace Selection Component
+function WorkspaceSelector({
+  workspaces,
+  currentWorkspace,
+  onSelect,
+  onCreate,
+}: {
+  workspaces: any[];
+  currentWorkspace: any;
+  onSelect: (id: string) => void;
+  onCreate: (name: string) => Promise<any>;
+}) {
+  const [newName, setNewName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    await onCreate(newName.trim());
+    setNewName('');
+    setCreating(false);
+  };
+
+  const copyWorkspaceId = () => {
+    if (currentWorkspace) {
+      navigator.clipboard.writeText(currentWorkspace.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (!currentWorkspace) {
+    // No workspace selected - show selection/creation screen
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-8">
+        <div className="max-w-lg w-full">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Stigmergy</h1>
+            <p className="text-white/50">Autonomous Agent Coordination</p>
+          </div>
+
+          {/* Create new workspace */}
+          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Plus className="w-5 h-5 text-amber-400" />
+              Create Workspace
+            </h2>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                placeholder="e.g., Login Feature, API Refactor"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-amber-500/50"
+              />
+              <button
+                onClick={handleCreate}
+                disabled={creating || !newName.trim()}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-black font-medium rounded-xl transition-colors"
+              >
+                {creating ? 'Creating...' : 'Create'}
+              </button>
+            </div>
+          </div>
+
+          {/* Existing workspaces */}
+          {workspaces.length > 0 && (
+            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <FolderOpen className="w-5 h-5 text-white/50" />
+                Join Existing Workspace
+              </h2>
+              <div className="space-y-2">
+                {workspaces.map((ws) => (
+                  <button
+                    key={ws.id}
+                    onClick={() => onSelect(ws.id)}
+                    className="w-full p-4 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10 rounded-xl text-left transition-colors group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-white">{ws.name}</div>
+                        <div className="text-sm text-white/40 font-mono">{ws.id}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-white/50">{ws.agents} agents</div>
+                        {ws.target && (
+                          <div className="text-xs text-amber-400">{ws.target}</div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Workspace selected - show compact selector in header area
+  return (
+    <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02] border-b border-white/5">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" />
+        <span className="font-medium text-white truncate">{currentWorkspace.name}</span>
+        <button
+          onClick={copyWorkspaceId}
+          className="flex items-center gap-1.5 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-mono text-white/60 hover:text-white transition-colors shrink-0"
+          title="Copy workspace ID to share with agents"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 text-emerald-400" />
+              <span className="text-emerald-400">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3" />
+              <span>{currentWorkspace.id}</span>
+            </>
+          )}
+        </button>
+      </div>
+      {workspaces.length > 1 && (
+        <select
+          value={currentWorkspace.id}
+          onChange={(e) => onSelect(e.target.value)}
+          className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-sm text-white/70 focus:outline-none"
+        >
+          {workspaces.map((ws) => (
+            <option key={ws.id} value={ws.id} className="bg-[#0a0a0f]">
+              {ws.name}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [showConfig, setShowConfig] = useState(false);
-  const [showQuickConnect, setShowQuickConnect] = useState(false);
-  const { connected, blueprint, events, error, reconnect } = useSynapse();
-
-  useEffect(() => {
-    const hasConfig = localStorage.getItem('synapse_configured');
-    if (!hasConfig && !connected) {
-      setShowQuickConnect(true);
-    }
-  }, [connected]);
-
-  const handleQuickConnect = useCallback(() => {
-    localStorage.setItem('synapse_configured', 'true');
-    setShowQuickConnect(false);
-    reconnect();
-  }, [reconnect]);
+  const {
+    connected,
+    blueprint,
+    events,
+    error,
+    reconnect,
+    workspaces,
+    currentWorkspace,
+    createWorkspace,
+    selectWorkspace,
+  } = useSynapse();
 
   const agents = blueprint?.agents || [];
   const locks = blueprint?.locks || [];
@@ -61,12 +203,24 @@ function App() {
   const workQueue = blueprint?.workQueue || [];
   const target = blueprint?.target;
 
-  // Build timeline from intents and work status
+  // Build timeline from intents
   const timeline = [...intents].sort((a, b) => {
     const aTime = typeof a.timestamp === 'number' ? a.timestamp : new Date(a.timestamp || 0).getTime();
     const bTime = typeof b.timestamp === 'number' ? b.timestamp : new Date(b.timestamp || 0).getTime();
     return bTime - aTime;
   });
+
+  // If no workspace selected, show workspace selector
+  if (!currentWorkspace) {
+    return (
+      <WorkspaceSelector
+        workspaces={workspaces}
+        currentWorkspace={currentWorkspace}
+        onSelect={selectWorkspace}
+        onCreate={createWorkspace}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -79,11 +233,16 @@ function App() {
       />
 
       {showConfig && <ConfigPanel onClose={() => setShowConfig(false)} />}
-      {showQuickConnect && (
-        <QuickConnect onConnect={handleQuickConnect} onClose={() => setShowQuickConnect(false)} />
-      )}
 
       <main className="pt-16 h-screen flex flex-col">
+        {/* Workspace Bar */}
+        <WorkspaceSelector
+          workspaces={workspaces}
+          currentWorkspace={currentWorkspace}
+          onSelect={selectWorkspace}
+          onCreate={createWorkspace}
+        />
+
         {/* Target Banner */}
         {target && (
           <div className="border-b border-white/5 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5">
@@ -122,7 +281,12 @@ function App() {
                 <div className="text-center py-8 text-white/30">
                   <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No agents connected</p>
-                  <p className="text-xs mt-1">Agents will appear here when they join</p>
+                  <p className="text-xs mt-2 text-white/20">
+                    Share workspace ID with agents:
+                  </p>
+                  <code className="text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded mt-1 inline-block">
+                    {currentWorkspace.id}
+                  </code>
                 </div>
               ) : (
                 agents.map((agent) => {
@@ -212,12 +376,10 @@ function App() {
                         key={intent.id || idx}
                         className={`relative flex gap-4 ${idx === 0 ? 'animate-fade-in' : ''}`}
                       >
-                        {/* Timeline connector */}
                         {idx < timeline.length - 1 && (
                           <div className="absolute left-5 top-12 bottom-0 w-px bg-white/10" />
                         )}
 
-                        {/* Avatar */}
                         <div className={`shrink-0 w-10 h-10 rounded-xl ${colors.bg} border ${colors.border} flex items-center justify-center`}>
                           {isTargetSet ? (
                             <Target className={`w-5 h-5 ${colors.text}`} />
@@ -228,7 +390,6 @@ function App() {
                           )}
                         </div>
 
-                        {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className={`font-medium ${colors.text}`}>
@@ -325,7 +486,7 @@ function App() {
                           </span>
                           {assignedAgent && (
                             <span className="text-white/40">
-                              → {assignedAgent.name.split(' ')[0]}
+                              {assignedAgent.name.split(' ')[0]}
                             </span>
                           )}
                         </div>
