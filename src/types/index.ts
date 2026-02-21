@@ -1,16 +1,19 @@
 export interface Agent {
   id: string;
   name: string;
-  type: 'realtime' | 'stateless' | 'observer';
-  role: 'planner' | 'coder' | 'tester' | 'executor' | 'refactor' | 'observer';
+  type?: 'realtime' | 'stateless' | 'observer';
+  role: 'planner' | 'coder' | 'tester' | 'executor' | 'refactor' | 'observer' | 'backend' | 'frontend';
   environment?: string;
-  capabilities: string[];
+  capabilities?: string[];
   subscriptions?: string[];
   connectedAt?: number;
-  lastSeen: number | Date;
+  lastSeen?: number | Date;
   cursor?: number;
   isOnline?: boolean;
   metadata?: Record<string, any>;
+  status?: 'idle' | 'working' | 'waiting' | 'completed' | 'offline';
+  currentTask?: string;
+  autonomous?: boolean;
 }
 
 export interface Lock {
@@ -44,6 +47,7 @@ export interface Intent {
   createdAt?: number | Date;
   updatedAt?: number;
   completedAt?: number | Date;
+  timestamp?: number | Date;
 }
 
 export interface FileState {
