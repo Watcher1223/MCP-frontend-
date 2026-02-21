@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSynapse } from './hooks/useSynapse';
 import Header from './components/Header';
 import ConfigPanel from './components/ConfigPanel';
-import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users, Plus, Copy, Check, FolderOpen, Settings2 } from 'lucide-react';
+import { Bot, Lock, Zap, Target, ArrowRight, CheckCircle2, Clock, Users, Plus, Copy, Check, FolderOpen } from 'lucide-react';
 
 // Agent colors based on client type
 const AGENT_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
@@ -42,15 +42,11 @@ function WorkspaceSelector({
   currentWorkspace,
   onSelect,
   onCreate,
-  onConfigureApi,
-  apiConfigured,
 }: {
   workspaces: any[];
   currentWorkspace: any;
   onSelect: (id: string) => void;
   onCreate: (name: string) => Promise<any>;
-  onConfigureApi?: () => void;
-  apiConfigured?: boolean;
 }) {
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -86,17 +82,6 @@ function WorkspaceSelector({
             <h1 className="text-3xl font-bold text-white mb-2">Stigmergy</h1>
             <p className="text-white/50">Autonomous Agent Coordination</p>
           </div>
-
-          {/* API Configuration hint */}
-          {!apiConfigured && onConfigureApi && (
-            <button
-              onClick={onConfigureApi}
-              className="w-full mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 text-sm flex items-center justify-center gap-2 hover:bg-blue-500/20 transition-colors"
-            >
-              <Settings2 className="w-4 h-4" />
-              Configure Backend API URL
-            </button>
-          )}
 
           {/* Create new workspace */}
           <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-6">
@@ -217,58 +202,8 @@ function WorkspaceSelector({
   );
 }
 
-// API Configuration Modal
-function ApiConfigModal({ onClose, onSave }: { onClose: () => void; onSave: (url: string) => void }) {
-  const [url, setUrl] = useState(localStorage.getItem('stigmergy_api_url') || '');
-
-  const handleSave = () => {
-    if (url.trim()) {
-      localStorage.setItem('stigmergy_api_url', url.trim());
-      onSave(url.trim());
-    }
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#161b22] border border-white/10 rounded-2xl p-6 max-w-md w-full">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <Settings2 className="w-5 h-5 text-amber-400" />
-          Configure Backend API
-        </h2>
-        <p className="text-white/50 text-sm mb-4">
-          Enter the URL of your Stigmergy MCP server (e.g., from mcp-use deployment).
-        </p>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://your-server.run.mcp-use.com"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-amber-500/50 mb-4"
-        />
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 rounded-xl text-black font-medium transition-colors"
-          >
-            Save & Connect
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const [showConfig, setShowConfig] = useState(false);
-  const [showApiConfig, setShowApiConfig] = useState(false);
-  const [apiConfigured, setApiConfigured] = useState(!!localStorage.getItem('stigmergy_api_url'));
   const {
     connected,
     blueprint,
@@ -279,12 +214,6 @@ function App() {
     createWorkspace,
     selectWorkspace,
   } = useSynapse();
-
-  const handleApiSave = (_url: string) => {
-    setApiConfigured(true);
-    // Force reconnect with new URL
-    window.location.reload();
-  };
 
   const agents = blueprint?.agents || [];
   const locks = blueprint?.locks || [];
@@ -302,19 +231,12 @@ function App() {
   // If no workspace selected, show workspace selector
   if (!currentWorkspace) {
     return (
-      <>
-        {showApiConfig && (
-          <ApiConfigModal onClose={() => setShowApiConfig(false)} onSave={handleApiSave} />
-        )}
-        <WorkspaceSelector
-          workspaces={workspaces}
-          currentWorkspace={currentWorkspace}
-          onSelect={selectWorkspace}
-          onCreate={createWorkspace}
-          onConfigureApi={() => setShowApiConfig(true)}
-          apiConfigured={apiConfigured || connected}
-        />
-      </>
+      <WorkspaceSelector
+        workspaces={workspaces}
+        currentWorkspace={currentWorkspace}
+        onSelect={selectWorkspace}
+        onCreate={createWorkspace}
+      />
     );
   }
 
@@ -329,10 +251,6 @@ function App() {
       />
 
       {showConfig && <ConfigPanel onClose={() => setShowConfig(false)} />}
-
-      {showApiConfig && (
-        <ApiConfigModal onClose={() => setShowApiConfig(false)} onSave={handleApiSave} />
-      )}
 
       <main className="pt-16 h-screen flex flex-col">
         {/* Workspace Bar */}

@@ -25,24 +25,19 @@ interface UseSynapseReturn {
   refreshWorkspaces: () => Promise<void>;
 }
 
+// MCP-use deployed backend URL
+const MCP_USE_API = 'https://shiny-credit-ak9lb.run.mcp-use.com';
+
 function getApiBase(): string {
-  // Check for window config (can be set by hosting)
-  const envApi = (window as any).STIGMERGY_API_URL;
-  if (envApi) return envApi;
-
-  // Check localStorage for user-configured API URL
-  const storedApi = localStorage.getItem('stigmergy_api_url');
-  if (storedApi) return storedApi;
-
   const host = window.location.host;
 
-  // Local development - API is on port 3201
+  // Local development - API is on port 3200
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return 'http://localhost:3201';
+    return 'http://localhost:3200';
   }
 
-  // Default: assume same origin (works when frontend is served by backend)
-  return `${window.location.protocol}//${host}`;
+  // Production: use the mcp-use deployed backend
+  return MCP_USE_API;
 }
 
 export function useSynapse(): UseSynapseReturn {
