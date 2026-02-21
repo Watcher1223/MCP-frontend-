@@ -25,19 +25,11 @@ interface UseSynapseReturn {
   refreshWorkspaces: () => Promise<void>;
 }
 
-// MCP-use deployed backend URL
-const MCP_USE_API = 'https://shiny-credit-ak9lb.run.mcp-use.com';
+// MCP-use deployed backend URL - always use this
+const API_BASE = 'https://shiny-credit-ak9lb.run.mcp-use.com';
 
 function getApiBase(): string {
-  const host = window.location.host;
-
-  // Local development - API is on port 3200
-  if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return 'http://localhost:3200';
-  }
-
-  // Production: use the mcp-use deployed backend
-  return MCP_USE_API;
+  return API_BASE;
 }
 
 export function useSynapse(): UseSynapseReturn {
