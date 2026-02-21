@@ -42,6 +42,7 @@ export function useSynapse(): UseSynapseReturn {
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const versionRef = useRef(0);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef = useRef<() => Promise<void>>(async () => {});
 
   // Get workspace ID from state or localStorage
   const getWorkspaceId = useCallback((): string | null => {
@@ -123,9 +124,17 @@ export function useSynapse(): UseSynapseReturn {
       });
       if (response.ok) {
         const data = await response.json();
+        // Handle various API response shapes: { id, name }, { workspace: { id, name } }, etc.
+        const w = data.workspace ?? data;
+        const id = w.id ?? data.id;
+        const workspaceName = w.name ?? data.name ?? name;
+        if (!id) {
+          console.error('Create workspace: no id in response', data);
+          return null;
+        }
         const newWorkspace: Workspace = {
-          id: data.id,
-          name: data.name,
+          id,
+          name: workspaceName,
           agents: 0,
           target: null,
           created: Date.now(),
@@ -133,6 +142,8 @@ export function useSynapse(): UseSynapseReturn {
         setWorkspaces(prev => [...prev, newWorkspace]);
         setCurrentWorkspace(newWorkspace);
         localStorage.setItem('stigmergy_workspace_id', newWorkspace.id);
+        // Refetch state for the new workspace immediately so we navigate with data
+        versionRef.current = 0;
         return newWorkspace;
       }
     } catch (e) {
@@ -162,10 +173,13 @@ export function useSynapse(): UseSynapseReturn {
 
       if (!response.ok) {
         if (response.status === 404) {
-          // Workspace not found, clear selection
-          localStorage.removeItem('stigmergy_workspace_id');
-          setCurrentWorkspace(null);
-          setError('Workspace not found');
+          // Verify workspace is really gone before clearing (changes endpoint may 404 for new workspaces)
+          const checkRes = await fetch(`${getApiBase()}/api/workspaces/${wsId}`);
+          if (!checkRes.ok) {
+            localStorage.removeItem('stigmergy_workspace_id');
+            setCurrentWorkspace(null);
+            setError('Workspace not found');
+          }
           return;
         }
         throw new Error('Failed to fetch');
@@ -219,6 +233,9 @@ export function useSynapse(): UseSynapseReturn {
     }
   }, [connected, convertToBlueprint, getWorkspaceId, currentWorkspace]);
 
+  // Keep poll ref updated so the interval always uses the latest workspace
+  pollRef.current = poll;
+
   // Initial fetch
   const fetchState = useCallback(async () => {
     const wsId = getWorkspaceId();
@@ -261,7 +278,9 @@ export function useSynapse(): UseSynapseReturn {
     refreshWorkspaces();
     fetchState();
 
-    pollIntervalRef.current = setInterval(poll, 1000);
+    pollIntervalRef.current = setInterval(() => {
+      pollRef.current?.();
+    }, 1000);
 
     return () => {
       if (pollIntervalRef.current) {
