@@ -1,4 +1,4 @@
-import { Lock, Clock } from 'lucide-react';
+import { Lock, Unlock, Clock } from 'lucide-react';
 import type { Lock as LockType, Agent } from '../types';
 
 interface LocksPanelProps {
@@ -18,47 +18,67 @@ function getAgentName(agentId: string, agents: Agent[]): string {
   return agent?.name || agentId.slice(0, 8);
 }
 
+function getAgentEnv(agentId: string, agents: Agent[]): string {
+  const agent = agents.find(a => a.id === agentId);
+  return agent?.environment || '';
+}
+
 export default function LocksPanel({ locks, agents }: LocksPanelProps) {
   return (
     <div className="panel-card overflow-hidden">
       <div className="panel-header">
         <div className="flex items-center gap-2">
           <Lock className="w-5 h-5 text-accent-teal" />
-          <h2 className="font-semibold text-text-primary">Active Locks</h2>
+          <h2 className="font-semibold text-text-primary">File Locks</h2>
         </div>
-        <span className="text-sm text-text-muted">{locks.length} active</span>
+        <span className="text-xs text-text-muted">
+          {locks.length > 0 ? `${locks.length} locked` : 'All available'}
+        </span>
       </div>
 
       <div className="divide-y divide-surface-border">
         {locks.length === 0 ? (
-          <div className="px-4 py-6 text-center text-text-muted text-sm">
-            No active locks
+          <div className="px-4 py-6 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center mb-3">
+              <Unlock className="w-6 h-6 text-emerald-400" />
+            </div>
+            <p className="text-sm font-medium text-emerald-400/90">All files available</p>
+            <p className="text-xs text-text-muted mt-1">No locks • Agents can pick up work</p>
           </div>
         ) : (
           locks.map((lock) => {
-            const expiresAt = typeof lock.expiresAt === 'number' ? lock.expiresAt : (lock.expiresAt ? new Date(lock.expiresAt).getTime() : Date.now() + 60000);
-            const isExpiringSoon = expiresAt - Date.now() < 10000;
+            const expiresAt = typeof lock.expiresAt === 'number'
+              ? lock.expiresAt
+              : (lock.expiresAt ? new Date(lock.expiresAt).getTime() : Date.now() + 60000);
+            const isExpiringSoon = expiresAt - Date.now() < 15000;
             const targetPath = lock.target?.path || lock.targetPath || 'Unknown';
-            const targetType = lock.target?.type || lock.targetType || 'file';
-            const targetId = lock.target?.identifier || lock.targetIdentifier;
+            const agentName = getAgentName(lock.agentId, agents);
+            const agentEnv = getAgentEnv(lock.agentId, agents);
+
             return (
-              <div key={lock.id} className="px-4 py-3 hover:bg-surface-elevated/30 transition-colors">
-                <div className="flex items-start justify-between">
+              <div
+                key={lock.id}
+                className="px-4 py-3 border-l-2 border-l-red-500/80 bg-red-500/5 hover:bg-red-500/10 transition-colors"
+              >
+                <div className="flex items-start gap-2">
+                  <Lock className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <div className="font-mono text-sm text-text-primary truncate">
-                      {targetPath}
+                      {targetPath.split('/').pop() || targetPath}
                     </div>
-                    <div className="text-xs text-text-secondary mt-1">
-                      {targetType}
-                      {targetId && ` : ${targetId}`}
+                    <div className="text-xs font-medium text-red-400 mt-1">
+                      LOCKED BY {agentName}
+                      {agentEnv && (
+                        <span className="text-red-400/80 font-normal"> ({agentEnv.toUpperCase()})</span>
+                      )}
                     </div>
-                    <div className="text-xs text-text-muted mt-1">
-                      Held by: {getAgentName(lock.agentId, agents)}
+                    <div className="flex items-center gap-2 mt-1 text-[10px] text-text-muted">
+                      <Clock className="w-2.5 h-2.5" />
+                      {formatTimeRemaining(expiresAt)}
+                      {isExpiringSoon && (
+                        <span className="text-amber-400">· Expiring soon</span>
+                      )}
                     </div>
-                  </div>
-                  <div className={`flex items-center gap-1 text-xs ${isExpiringSoon ? 'text-amber-400' : 'text-text-muted'}`}>
-                    <Clock className="w-3 h-3" />
-                    {formatTimeRemaining(expiresAt)}
                   </div>
                 </div>
               </div>

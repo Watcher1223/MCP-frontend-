@@ -1,14 +1,11 @@
-import { WifiOff, Settings, RefreshCw, LayoutGrid, GitBranch, Users } from 'lucide-react';
+import { WifiOff, Settings, RefreshCw, Users } from 'lucide-react';
 
 interface HeaderProps {
   connected: boolean;
   error: string | null;
   onReconnect: () => void;
   onConfig: () => void;
-  cursor: number;
   agentCount?: number;
-  viewMode?: 'graph' | 'grid';
-  onViewModeChange?: (mode: 'graph' | 'grid') => void;
 }
 
 export default function Header({
@@ -16,10 +13,7 @@ export default function Header({
   error,
   onReconnect,
   onConfig,
-  cursor,
   agentCount = 0,
-  viewMode = 'graph',
-  onViewModeChange,
 }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 bg-surface-mid/95 backdrop-blur-md border-b border-surface-border z-50">
@@ -33,56 +27,22 @@ export default function Header({
               </div>
               <div>
                 <h1 className="text-lg font-bold text-text-primary tracking-tight">Synapse</h1>
-                <p className="text-xs text-text-muted uppercase tracking-wider">Multi-Agent Coordination</p>
+                <p className="text-xs text-text-muted uppercase tracking-wider">
+                  Shared context for AI agents · Real-time handoff
+                </p>
               </div>
             </div>
 
-            {/* Agent count badge */}
             <div className="hidden md:flex items-center gap-2 bg-surface-card px-3 py-1.5 rounded-lg border border-surface-border">
               <Users className="w-4 h-4 text-accent-teal" />
               <span className="text-sm font-medium text-text-secondary">
-                {agentCount} agent{agentCount !== 1 ? 's' : ''}
+                {agentCount} agent{agentCount !== 1 ? 's' : ''} in workspace
               </span>
             </div>
           </div>
 
-          {/* Center - View Toggle */}
-          {onViewModeChange && (
-            <div className="hidden sm:flex items-center gap-1 bg-surface-card p-1 rounded-lg border border-surface-border">
-              <button
-                onClick={() => onViewModeChange('graph')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  viewMode === 'graph'
-                    ? 'bg-accent-gold/15 text-accent-gold border border-accent-gold/30'
-                    : 'text-text-muted hover:text-text-secondary hover:bg-surface-elevated'
-                }`}
-              >
-                <GitBranch className="w-4 h-4" />
-                Graph
-              </button>
-              <button
-                onClick={() => onViewModeChange('grid')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-accent-gold/15 text-accent-gold border border-accent-gold/30'
-                    : 'text-text-muted hover:text-text-secondary hover:bg-surface-elevated'
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Grid
-              </button>
-            </div>
-          )}
-
           {/* Right side */}
           <div className="flex items-center gap-4">
-            {/* Cursor */}
-            <div className="hidden md:block text-sm">
-              <span className="text-text-muted">Cursor:</span>{' '}
-              <span className="font-mono text-accent-teal">{cursor}</span>
-            </div>
-
-            {/* Connection Status */}
             <div className="flex items-center gap-2">
               {connected ? (
                 <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
@@ -100,7 +60,6 @@ export default function Header({
               )}
             </div>
 
-            {/* Actions */}
             <div className="flex items-center gap-1">
               <button
                 onClick={onReconnect}
@@ -109,7 +68,6 @@ export default function Header({
               >
                 <RefreshCw className="w-5 h-5 text-text-muted hover:text-text-primary transition-colors" />
               </button>
-
               <button
                 onClick={onConfig}
                 className="p-2 hover:bg-surface-elevated rounded-lg transition-colors"

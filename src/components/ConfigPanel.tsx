@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { X, Play, Square, RefreshCw } from 'lucide-react';
+import { X, Play, Square, RefreshCw, Copy, Check } from 'lucide-react';
 
 interface ConfigPanelProps {
   onClose: () => void;
 }
 
 export default function ConfigPanel({ onClose }: ConfigPanelProps) {
-  const [hubUrl, setHubUrl] = useState('http://localhost:3100');
+  const [hubUrl, setHubUrl] = useState('http://localhost:3200');
+  const [configCopied, setConfigCopied] = useState(false);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string[]>([]);
 
@@ -98,14 +99,49 @@ export default function ConfigPanel({ onClose }: ConfigPanelProps) {
           )}
 
           <div className="bg-surface-deep/50 rounded-lg p-4 border border-surface-border">
+            <h3 className="text-sm font-medium text-text-secondary mb-2">MCP Configuration</h3>
+            <p className="text-xs text-text-muted mb-3">Add to Claude Desktop or Cursor MCP settings:</p>
+            <div className="relative">
+              <pre className="bg-surface-mid px-3 py-3 rounded-lg font-mono text-xs text-accent-teal overflow-x-auto">
+{`{
+  "mcpServers": {
+    "synapse": {
+      "command": "npx",
+      "args": ["synapse", "connect"],
+      "env": { "SYNAPSE_HUB": "${hubUrl.replace(/^https?:\/\//, '').replace(/:\d+$/, '')}" }
+    }
+  }
+}`}
+              </pre>
+              <button
+                onClick={async () => {
+                  const config = JSON.stringify({
+                    mcpServers: {
+                      synapse: {
+                        command: 'npx',
+                        args: ['synapse', 'connect'],
+                        env: { SYNAPSE_HUB: hubUrl.replace(/^https?:\/\//, '').replace(/:\d+$/, '') },
+                      },
+                    },
+                  }, null, 2);
+                  await navigator.clipboard.writeText(config);
+                  setConfigCopied(true);
+                  setTimeout(() => setConfigCopied(false), 2000);
+                }}
+                className="absolute top-2 right-2 p-1.5 rounded bg-surface-elevated hover:bg-surface-border transition-colors"
+              >
+                {configCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-text-muted" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-surface-deep/50 rounded-lg p-4 border border-surface-border">
             <h3 className="text-sm font-medium text-text-secondary mb-3">How to Run</h3>
             <div className="space-y-2 text-sm text-text-muted">
               <p>1. Start the hub:</p>
               <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run dev:hub</code>
-              <p>2. Run the demo scenarios:</p>
-              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run demo</code>
-              <p>3. Or run individual tests:</p>
-              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npm run test</code>
+              <p>2. Connect agents (run in Cursor, Terminal, etc.):</p>
+              <code className="block bg-surface-mid px-3 py-2 rounded-lg font-mono text-accent-teal">npx synapse connect</code>
             </div>
           </div>
         </div>

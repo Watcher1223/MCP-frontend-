@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { FileText, ChevronRight, ChevronDown, Folder } from 'lucide-react';
-import type { FileState } from '../types';
+import { FileText, ChevronRight, ChevronDown, Folder, Lock, Unlock } from 'lucide-react';
+import type { FileState, Lock as LockType, Agent } from '../types';
 
 interface FilesPanelProps {
   files: Record<string, FileState>;
+  locks?: LockType[];
+  agents?: Agent[];
 }
 
 interface FileNode {
@@ -46,19 +48,47 @@ function buildFileTree(files: Record<string, FileState>): FileNode[] {
   return root;
 }
 
-function FileTreeNode({ node, depth = 0, onSelect }: { node: FileNode; depth?: number; onSelect: (file: FileState) => void }) {
+function getAgentName(agentId: string, agents: Agent[]): string {
+  const agent = agents.find(a => a.id === agentId);
+  return agent?.name || agentId.slice(0, 8);
+}
+
+function FileTreeNode({
+  node,
+  depth = 0,
+  onSelect,
+  lockMap,
+  agents = [],
+}: {
+  node: FileNode;
+  depth?: number;
+  onSelect: (file: FileState) => void;
+  lockMap: Map<string, { agentId: string }>;
+  agents: Agent[];
+}) {
   const [expanded, setExpanded] = useState(true);
+  const lock = node.isFile && node.file ? lockMap.get(node.file.path) : null;
 
   if (node.isFile) {
     return (
       <button
         onClick={() => node.file && onSelect(node.file)}
-        className="flex items-center gap-2 w-full px-2 py-1.5 hover:bg-surface-elevated rounded-lg text-left transition-colors"
+        className="flex items-center gap-2 w-full px-2 py-1.5 hover:bg-surface-elevated rounded-lg text-left transition-colors group"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
         <FileText className="w-4 h-4 text-accent-teal flex-shrink-0" />
-        <span className="text-sm text-text-secondary truncate">{node.name}</span>
-        <span className="text-xs text-text-muted ml-auto">v{node.file?.version}</span>
+        <span className="text-sm text-text-secondary truncate flex-1">{node.name}</span>
+        {lock ? (
+          <span className="flex items-center gap-1 text-[10px] text-red-400 shrink-0" title={`Locked by ${getAgentName(lock.agentId, agents)}`}>
+            <Lock className="w-3 h-3" />
+            LOCKED
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-[10px] text-emerald-400/80 shrink-0" title="Available">
+            <Unlock className="w-3 h-3" />
+          </span>
+        )}
+        <span className="text-xs text-text-muted">v{node.file?.version}</span>
       </button>
     );
   }
@@ -81,7 +111,14 @@ function FileTreeNode({ node, depth = 0, onSelect }: { node: FileNode; depth?: n
       {expanded && (
         <div>
           {node.children.map((child) => (
-            <FileTreeNode key={child.path} node={child} depth={depth + 1} onSelect={onSelect} />
+            <FileTreeNode
+              key={child.path}
+              node={child}
+              depth={depth + 1}
+              onSelect={onSelect}
+              lockMap={lockMap}
+              agents={agents}
+            />
           ))}
         </div>
       )}
@@ -89,19 +126,25 @@ function FileTreeNode({ node, depth = 0, onSelect }: { node: FileNode; depth?: n
   );
 }
 
-export default function FilesPanel({ files }: FilesPanelProps) {
+export default function FilesPanel({ files, locks = [], agents = [] }: FilesPanelProps) {
   const [selectedFile, setSelectedFile] = useState<FileState | null>(null);
   const tree = buildFileTree(files);
   const fileCount = Object.keys(files).length;
+
+  const lockMap = new Map<string, { agentId: string }>();
+  locks.forEach((lock) => {
+    const path = lock.target?.path || lock.targetPath;
+    if (path) lockMap.set(path, { agentId: lock.agentId });
+  });
 
   return (
     <div className="panel-card overflow-hidden">
       <div className="panel-header">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-accent-teal" />
-          <h2 className="font-semibold text-text-primary">Files</h2>
+          <h2 className="font-semibold text-text-primary">Shared Context</h2>
         </div>
-        <span className="text-sm text-text-muted">{fileCount} files</span>
+        <span className="text-xs text-text-muted">{fileCount} files</span>
       </div>
 
       {selectedFile ? (
@@ -130,7 +173,13 @@ export default function FilesPanel({ files }: FilesPanelProps) {
             </div>
           ) : (
             tree.map((node) => (
-              <FileTreeNode key={node.path} node={node} onSelect={setSelectedFile} />
+              <FileTreeNode
+                key={node.path}
+                node={node}
+                onSelect={setSelectedFile}
+                lockMap={lockMap}
+                agents={agents}
+              />
             ))
           )}
         </div>
